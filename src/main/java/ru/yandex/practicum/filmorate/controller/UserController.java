@@ -15,6 +15,7 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
 
+    private long idCounter = 1L;
     private final Map<Long, User> users = new HashMap<>();
 
     @PostMapping
@@ -49,7 +50,14 @@ public class UserController {
         if (users.containsKey(newUser.getId())) {
             User updatedUser = users.get(newUser.getId());
             updatedUser.setId(newUser.getId());
-            updatedUser.setName(newUser.getName());
+
+            if (newUser.getName() == null) {
+                updatedUser.setName(newUser.getLogin());
+                log.info("При обновлении пользователя имя не задано. Вместо имени будет использоваться логин {}", updatedUser.getName());
+            } else {
+                updatedUser.setName(newUser.getName());
+            }
+
             updatedUser.setLogin(newUser.getLogin());
             updatedUser.setEmail(newUser.getEmail());
             updatedUser.setBirthday(newUser.getBirthday());
@@ -63,11 +71,6 @@ public class UserController {
     }
 
     private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        return idCounter++;
     }
 }

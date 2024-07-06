@@ -47,4 +47,12 @@ class FilmControllerTest {
 
         assertThrows(ValidationException.class, () -> filmController.updateFilm(film1), "Произошло обновление фильма с неверным айди.");
     }
+
+    @Test
+    void shouldThrowExceptionWhileUpdateWrongRelease() {
+        Film film = new Film();
+        film.setReleaseDate(LocalDate.of(1785, 12, 28));
+
+        assertThrows(ValidationException.class, () -> filmController.updateFilm(film),"Произошло обновление даты выхода фильма на недопустимую.");
+    }
 }

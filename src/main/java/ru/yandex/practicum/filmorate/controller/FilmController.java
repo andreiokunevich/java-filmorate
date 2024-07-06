@@ -16,6 +16,7 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
 
+    private long idCounter = 1L;
     private final Map<Long, Film> films = new HashMap<>();
 
     @GetMapping
@@ -44,7 +45,14 @@ public class FilmController {
             updatedFilm.setId(newFilm.getId());
             updatedFilm.setName(newFilm.getName());
             updatedFilm.setDescription(newFilm.getDescription());
-            updatedFilm.setReleaseDate(newFilm.getReleaseDate());
+
+            if (newFilm.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+                log.error("При обновлении фильма дата релиза задана раньше чем 28 декабря 1895 года.");
+                throw new ValidationException("Дата релиза фильма задана неверно.");
+            } else {
+                updatedFilm.setReleaseDate(newFilm.getReleaseDate());
+            }
+
             updatedFilm.setDuration(newFilm.getDuration());
             films.put(updatedFilm.getId(), updatedFilm);
             log.info("В коллекцию сохранен обновленный фильм с ID {}", updatedFilm.getId());
@@ -56,11 +64,6 @@ public class FilmController {
     }
 
     private long getNextId() {
-        long currentMaxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        return idCounter++;
     }
 }
