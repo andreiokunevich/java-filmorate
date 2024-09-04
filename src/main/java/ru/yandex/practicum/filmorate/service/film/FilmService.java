@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service.film;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,17 +14,10 @@ import java.util.*;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
-
-    @Autowired
-    private UserService userService;
-
+    private final UserService userService;
     private final FilmStorage inMemoryFilmStorage;
-
-    @Autowired
-    public FilmService(FilmStorage inMemoryFilmStorage) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
-    }
 
     public Collection<Film> getAll() {
         return inMemoryFilmStorage.getAll();
@@ -44,13 +38,7 @@ public class FilmService {
     public void addLike(Long idFilm, Long idUser) {
         if (idFilm != null && idUser != null) {
             Film film = findFilmById(idFilm);
-            if (userService.findUserById(idUser) == null) {
-                throw new NotFoundException("Данного пользователя с id " + idUser + "не существует");
-            }
-            if (film.getLikes() == null) {
-                film.setLikes(new HashSet<>());
-                log.info("У фильма отсутствовали лайки. Создали новый Set для хранения лайков.");
-            }
+            userService.findUserById(idUser);
             film.getLikes().add(idUser);
             log.info("Добавили лайк фильму с id {} от пользователя с id {}", idFilm, idUser);
         } else {
@@ -62,14 +50,8 @@ public class FilmService {
     public void deleteLike(Long idFilm, Long idUser) {
         if (idFilm != null && idUser != null) {
             Film film = findFilmById(idFilm);
-            if (film.getLikes() != null && film.getLikes().contains(idUser)) {
-                film.getLikes().remove(idUser);
-                log.info("У фильма с id {} удалили лайк от пользователя с id {}", idFilm, idUser);
-            } else {
-                log.error("Попытка удаления лайка у фильма с id {} у которого нет ни одного лайка или пользователь" +
-                        " с id {} не ставил лайк этому фильму", idFilm, idUser);
-                throw new NotFoundException("У фильма еще нет ни одного лайка или данный пользователь не ставил лайк этому фильму.");
-            }
+            userService.findUserById(idUser);
+            film.getLikes().remove(idUser);
         } else {
             log.error("ID некорректны. ID: idUser {}, idFilm {}", idUser, idFilm);
             throw new ValidationException("ID пользователей некорректны.");

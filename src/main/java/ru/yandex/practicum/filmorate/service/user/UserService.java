@@ -42,16 +42,8 @@ public class UserService {
         if (idUser != null && idFriend != null) {
             User user = inMemoryUserStorage.findUserById(idUser);
             User friend = inMemoryUserStorage.findUserById(idFriend);
-            if (user.getFriends() == null) {
-                user.setFriends(new HashSet<>());
-                log.info("У пользователя с id {} был создан новый список для хранения id друзей", idUser);
-            }
             user.getFriends().add(idFriend);
             log.info("Пользователь с id {} добавлен в друзья к пользователю с id {}", idFriend, idUser);
-            if (friend.getFriends() == null) {
-                friend.setFriends(new HashSet<>());
-                log.info("У пользователя с id {} был создан новый список для хранения id друзей", idFriend);
-            }
             friend.getFriends().add(idUser);
             log.info("Пользователь с id {} добавлен в друзья к пользователю с id {}", idUser, idFriend);
         } else {
