@@ -3,12 +3,14 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Data
+@Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(exclude = {"name", "birthday"})
 public class User {
     private Integer id;

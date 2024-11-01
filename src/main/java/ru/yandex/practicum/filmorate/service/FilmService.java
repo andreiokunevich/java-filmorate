@@ -34,31 +34,13 @@ public class FilmService {
 
     public Film create(Film film) {
         Film createdFilm = filmStorage.create(film);
-
         if (!createdFilm.getGenres().isEmpty()) {
-            List<Integer> genresIds = genreRepository.getAllGenres()
-                    .stream()
-                    .map(Genre::getId)
-                    .toList();
-            List<Integer> genresInFilmIds = film.getGenres()
-                    .stream()
-                    .map(Genre::getId)
-                    .toList();
-            if (!genresIds.containsAll(genresInFilmIds)) {
-                throw new ValidationException("Передан неверный жанр");
-            }
-            for (Integer genreId : genresIds) {
-                if (genresInFilmIds.contains(genreId)) {
-                    genreRepository.addFilmGenre(createdFilm.getId(), genreId);
-                }
-            }
+            addGenres(film);
         }
-
         List<Integer> mpaId = mpaRepository.getAllMpa()
                 .stream()
                 .map(Mpa::getId)
                 .toList();
-
         if (film.getMpa() != null) {
             if (!mpaId.contains(film.getMpa().getId())) {
                 throw new ValidationException("Рейтинг MPA не верен");
@@ -74,21 +56,28 @@ public class FilmService {
         Film updatedFilm = filmStorage.update(film);
         if (!updatedFilm.getGenres().isEmpty()) {
             genreRepository.deleteFilmGenre(film.getId());
-            List<Integer> genresIds = genreRepository.getAllGenres()
-                    .stream()
-                    .map(Genre::getId)
-                    .toList();
-            List<Integer> genresInFilmIds = film.getGenres()
-                    .stream()
-                    .map(Genre::getId)
-                    .toList();
-            for (Integer genreId : genresIds) {
-                if (genresInFilmIds.contains(genreId)) {
-                    genreRepository.addFilmGenre(updatedFilm.getId(), genreId);
-                }
-            }
+            addGenres(film);
         }
         return updatedFilm;
+    }
+
+    private void addGenres(Film film) {
+        List<Integer> genresIds = genreRepository.getAllGenres()
+                .stream()
+                .map(Genre::getId)
+                .toList();
+        List<Integer> genresInFilmIds = film.getGenres()
+                .stream()
+                .map(Genre::getId)
+                .toList();
+        if (!genresIds.containsAll(genresInFilmIds)) {
+            throw new ValidationException("Передан неверный жанр");
+        }
+        for (Integer genreId : genresIds) {
+            if (genresInFilmIds.contains(genreId)) {
+                genreRepository.addFilmGenre(film.getId(), genreId);
+            }
+        }
     }
 
     public void delete(Integer id) {
@@ -96,33 +85,18 @@ public class FilmService {
     }
 
     public void addLike(Integer idFilm, Integer idUser) {
-        if (idFilm != null && idUser != null) {
-            filmStorage.findFilmById(idFilm);
-            filmStorage.addLike(idFilm, idUser);
-            log.info("Добавили лайк фильму с id {} от пользователя с id {}", idFilm, idUser);
-        } else {
-            log.error("ID некорректны. ID: idUser {}, idFilm {}", idUser, idFilm);
-            throw new ValidationException("ID пользователей некорректны.");
-        }
+        filmStorage.findFilmById(idFilm);
+        filmStorage.addLike(idFilm, idUser);
+        log.info("Добавили лайк фильму с id {} от пользователя с id {}", idFilm, idUser);
     }
 
     public void deleteLike(Integer idFilm, Integer idUser) {
-        if (idFilm != null && idUser != null) {
-            filmStorage.findFilmById(idFilm);
-            filmStorage.deleteLike(idFilm, idUser);
-            log.info("Удалили лайк у фильма с id {} от пользователя с id {}", idFilm, idUser);
-        } else {
-            log.error("ID некорректны. ID: idUser {}, idFilm {}", idUser, idFilm);
-            throw new ValidationException("ID пользователей некорректны.");
-        }
+        filmStorage.findFilmById(idFilm);
+        filmStorage.deleteLike(idFilm, idUser);
+        log.info("Удалили лайк у фильма с id {} от пользователя с id {}", idFilm, idUser);
     }
 
     public Collection<Film> getPopularFilms(Integer amount) {
-        if (amount != null) {
-            return filmStorage.getPopularFilms(amount);
-        } else {
-            log.error("Параметр amount некорректен");
-            throw new ValidationException("Параметр amount некорректен.");
-        }
+        return filmStorage.getPopularFilms(amount);
     }
 }

@@ -41,55 +41,35 @@ public class UserService {
     }
 
     public void addUserToFriends(Integer idUser, Integer idFriend) {
-        if (idUser != null && idFriend != null) {
-            userStorage.findUserById(idUser);
-            userStorage.findUserById(idFriend);
-            friendshipRepository.addFriend(idUser, idFriend);
-            log.info("Пользователь с id {} добавлен в друзья к пользователю с id {}", idFriend, idUser);
-        } else {
-            log.error("ID пользователей некорректны или не найдены. ID: idUser {}, idFriend {}", idUser, idFriend);
-            throw new ValidationException("ID пользователей некорректны.");
-        }
+        userStorage.findUserById(idUser);
+        userStorage.findUserById(idFriend);
+        friendshipRepository.addFriend(idUser, idFriend);
+        log.info("Пользователь с id {} добавлен в друзья к пользователю с id {}", idFriend, idUser);
     }
 
     public void deleteUserFromFriends(Integer idUser, Integer idFriend) {
-        if (idUser != null && idFriend != null) {
-            userStorage.findUserById(idUser);
-            Collection<User> friendList = getFriends(idUser);
-            if (friendList.contains(userStorage.findUserById(idFriend))) {
-                friendshipRepository.deleteFriend(idUser, idFriend);
-                log.info("Удалили друга у пользователя с id {}. ID удаленного друга: {}", idUser, idFriend);
-            }
-        } else {
-            log.error("ID пользователей некорректны или не найдены. ID: idUser {}, idFriend {}", idUser, idFriend);
-            throw new ValidationException("ID пользователей некорректны.");
+        userStorage.findUserById(idUser);
+        Collection<User> friendList = getFriends(idUser);
+        if (friendList.contains(userStorage.findUserById(idFriend))) {
+            friendshipRepository.deleteFriend(idUser, idFriend);
+            log.info("Удалили друга у пользователя с id {}. ID удаленного друга: {}", idUser, idFriend);
         }
     }
 
     public Collection<User> showCommonFriends(Integer idUser, Integer idFriend) {
-        if (idUser != null && idFriend != null) {
-            userStorage.findUserById(idUser);
-            userStorage.findUserById(idFriend);
-            Collection<User> commonFriends = friendshipRepository.getCommonFriends(idUser, idFriend);
-            if (!commonFriends.isEmpty()) {
-                return commonFriends;
-            } else {
-                log.error("Пользователи не являются друзьями или у них нет общих друзей. ID: idUser {}, idFriend {}", idUser, idFriend);
-                throw new ValidationException("Пользователи не являются друзьями или у них нет общих друзей.");
-            }
+        userStorage.findUserById(idUser);
+        userStorage.findUserById(idFriend);
+        Collection<User> commonFriends = friendshipRepository.getCommonFriends(idUser, idFriend);
+        if (!commonFriends.isEmpty()) {
+            return commonFriends;
         } else {
-            log.error("ID пользователей некорректны. ID: idUser {}, idFriend {}", idUser, idFriend);
-            throw new ValidationException("ID пользователей некорректны.");
+            log.error("Пользователи не являются друзьями или у них нет общих друзей. ID: idUser {}, idFriend {}", idUser, idFriend);
+            throw new ValidationException("Пользователи не являются друзьями или у них нет общих друзей.");
         }
     }
 
     public Collection<User> getFriends(Integer id) {
-        if (id != null) {
-            userStorage.findUserById(id);
-            return friendshipRepository.getAllUserFriends(id).stream().toList();
-        } else {
-            log.error("ID не задан или не найден.");
-            throw new ValidationException("ID пользователя не задан или некорректен.");
-        }
+        userStorage.findUserById(id);
+        return friendshipRepository.getAllUserFriends(id).stream().toList();
     }
 }

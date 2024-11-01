@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -44,18 +45,18 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void addLikeFilm(@PathVariable Integer id, @PathVariable Integer userId) {
+    public void addLikeFilm(@PathVariable @NotNull Integer id, @PathVariable @NotNull Integer userId) {
         filmService.addLike(id, userId);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLikeFilm(@PathVariable Integer id, @PathVariable Integer userId) {
+    public void deleteLikeFilm(@PathVariable @NotNull Integer id, @PathVariable @NotNull Integer userId) {
         filmService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer amount) {
+    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") @NotNull Integer amount) {
         return filmService.getPopularFilms(amount);
     }
 }
